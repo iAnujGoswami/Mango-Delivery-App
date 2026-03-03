@@ -11,7 +11,7 @@ const LOGIN_MENU_ITEMS = [
 
 function Navbar() {
   return (
-    <nav className="max-w-7xl mx-auto flex justify-between items-center py-3 px-6">
+    <nav className="sticky top-0 z-50 max-w-7xl mx-auto flex justify-between items-center py-3 px-6 bg-[#fff7e8]/95 backdrop-blur-sm">
       <Link to="/" className="navbar-link">
         <span aria-hidden="true">🏠 </span>
         <span>Home</span>

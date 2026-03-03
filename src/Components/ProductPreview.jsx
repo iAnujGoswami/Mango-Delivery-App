@@ -2,7 +2,7 @@
 function ProductPreview(){
     return (
         <div class="productPreview">
-            <p>Heyy</p>
+            <p></p>
         </div>
     )
 

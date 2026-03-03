@@ -5,7 +5,7 @@ import products from "../data";
 const INITIAL_COUNT = 12;
 const PAGE_SIZE = 8;
 
-function ProductCard({ item }) {
+function ProductCard({ item, onAddToCart }) {
   return (
     <article className="group rounded-2xl border border-[#ffd8a8] bg-[#fff7e8] p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#ffb25b]">
       <img
@@ -17,7 +17,11 @@ function ProductCard({ item }) {
       <p className="mt-2 text-lg text-[#6b5b45]">Fresh delivery in 10 minutes</p>
       <div className="mt-5 flex items-center justify-between">
         <span className="text-xl font-bold">Rs. {item.price}</span>
-        <button className="rounded-lg bg-orange-500 px-4 py-2 text-base font-semibold text-white">
+        <button
+          type="button"
+          onClick={() => onAddToCart(item)}
+          className="rounded-lg bg-orange-500 px-4 py-2 text-base font-semibold text-white transition hover:bg-orange-600"
+        >
           Add
         </button>
       </div>
@@ -25,7 +29,7 @@ function ProductCard({ item }) {
   );
 }
 
-function Products() {
+function Products({ onAddToCart = () => {} }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const loadMoreRef = useRef(null);
 
@@ -56,7 +60,7 @@ function Products() {
 
         <section className="grid grid-cols-4 gap-5">
           {visibleProducts.map((item) => (
-            <ProductCard key={item.id} item={item} />
+            <ProductCard key={item.id} item={item} onAddToCart={onAddToCart} />
           ))}
         </section>
 
