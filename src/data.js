@@ -30,3 +30,22 @@ export const INTRO_DATA=[
     },
 
 ]
+
+const baseProducts = [
+  { id: "mango", name: "Kesar Mango", price: 120, image: mango },
+  { id: "chiku", name: "Chiku", price: 90, image: chiku },
+  { id: "coconut", name: "Green Coconut", price: 60, image: coconut },
+  { id: "guava", name: "Guava", price: 80, image: guava },
+];
+
+const products = Array.from({ length: 80 }, (_, i) => {
+  const base = baseProducts[i % baseProducts.length];
+
+  return {
+    ...base,
+    id: `${base.id}-${i}`,
+    name: `${base.name} ${i + 1}`,
+  };
+});
+
+export default products;
