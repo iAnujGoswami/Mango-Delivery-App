@@ -5,7 +5,7 @@ import products from "../data";
 const INITIAL_COUNT = 12;
 const PAGE_SIZE = 8;
 
-function ProductCard({ item, onAddToCart }) {
+function ProductCard({ item, quantity, onAdd, onIncrease, onDecrease }) {
   return (
     <article className="group rounded-2xl border border-[#ffd8a8] bg-[#fff7e8] p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#ffb25b]">
       <img
@@ -17,19 +17,38 @@ function ProductCard({ item, onAddToCart }) {
       <p className="mt-2 text-lg text-[#6b5b45]">Fresh delivery in 10 minutes</p>
       <div className="mt-5 flex items-center justify-between">
         <span className="text-xl font-bold">Rs. {item.price}</span>
-        <button
-          type="button"
-          onClick={() => onAddToCart(item)}
-          className="rounded-lg bg-orange-500 px-4 py-2 text-base font-semibold text-white transition hover:bg-orange-600"
-        >
-          Add
-        </button>
+        {quantity === 0 ? (
+          <button
+            onClick={() => onAdd(item.id)}
+            className="rounded-lg bg-orange-500 px-4 py-2 text-base font-semibold text-white transition hover:bg-orange-600"
+          >
+            Add
+          </button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onDecrease(item.id)}
+              className="h-9 w-9 rounded-lg bg-[#ffd6a0] text-lg font-bold text-[#7a4a12] transition hover:bg-[#ffc27a]"
+            >
+              -
+            </button>
+            <span className="min-w-10 text-center text-base font-semibold text-[#7a4a12]">
+              {quantity}
+            </span>
+            <button
+              onClick={() => onIncrease(item.id)}
+              className="h-9 w-9 rounded-lg bg-orange-500 text-lg font-bold text-white transition hover:bg-orange-600"
+            >
+              +
+            </button>
+          </div>
+        )}
       </div>
     </article>
   );
 }
 
-function Products({ onAddToCart = () => {} }) {
+function Products({ cartItems = [], onAddToCart, onIncreaseItem, onDecreaseItem }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const loadMoreRef = useRef(null);
 
@@ -52,6 +71,24 @@ function Products({ onAddToCart = () => {} }) {
     return () => observer.disconnect();
   }, [hasMore]);
 
+  function getQuantity(productId) {
+    return cartItems.find((item) => item.id === productId)?.quantity || 0;
+  }
+
+  function handleAdd(productId) {
+    const product = products.find((item) => item.id === productId);
+    if (!product) return;
+    onAddToCart(product);
+  }
+
+  function handleIncrease(productId) {
+    onIncreaseItem(productId);
+  }
+
+  function handleDecrease(productId) {
+    onDecreaseItem(productId);
+  }
+
   return (
     <div className="min-h-screen bg-[#fff1cc] text-[#213547]">
       <Navbar />
@@ -60,7 +97,14 @@ function Products({ onAddToCart = () => {} }) {
 
         <section className="grid grid-cols-4 gap-5">
           {visibleProducts.map((item) => (
-            <ProductCard key={item.id} item={item} onAddToCart={onAddToCart} />
+            <ProductCard
+              key={item.id}
+              item={item}
+              quantity={getQuantity(item.id)}
+              onAdd={handleAdd}
+              onIncrease={handleIncrease}
+              onDecrease={handleDecrease}
+            />
           ))}
         </section>
 

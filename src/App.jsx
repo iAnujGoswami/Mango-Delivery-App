@@ -53,7 +53,17 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path='/products' element={<Products onAddToCart={handleAddToCart} />} />
+        <Route
+          path="/products"
+          element={
+            <Products
+              cartItems={cartItems}
+              onAddToCart={handleAddToCart}
+              onIncreaseItem={handleIncreaseCartItem}
+              onDecreaseItem={handleDecreaseCartItem}
+            />
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route

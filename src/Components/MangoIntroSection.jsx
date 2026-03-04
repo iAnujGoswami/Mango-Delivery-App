@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { INTRO_DATA } from "../data";
 
 function MangoIntroSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigate = useNavigate();
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % INTRO_DATA.length);
@@ -43,7 +45,11 @@ function MangoIntroSection() {
 
         <p className="text-xl text-[#555555] tenor-sans whitespace-nowrap">{currentItem.description}</p>
 
-        <button className="mt-4 px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition">
+        <button
+          type="button"
+          onClick={() => navigate("/products")}
+          className="mt-4 px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition"
+        >
           Shop Now
         </button>
       </div>
