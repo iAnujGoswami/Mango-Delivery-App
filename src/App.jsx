@@ -8,6 +8,7 @@ import Products from './pages/Products';
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Cart from "./pages/Cart";
+import AboutUs from "./pages/AboutUs";
 function App() {
   const [cartItems, setCartItems] = useState(() => {
     const saved = localStorage.getItem("mango_cart_items");
@@ -53,6 +54,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<AboutUs />} />
         <Route
           path="/products"
           element={
