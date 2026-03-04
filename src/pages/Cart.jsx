@@ -1,4 +1,4 @@
-
+import { Link } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 
 function CartItemCard({ item, onIncreaseItem, onDecreaseItem, onDeleteItem }) {
@@ -73,6 +73,12 @@ function Cart({ cartItems = [], onIncreaseItem, onDecreaseItem, onDeleteItem }) 
 
             <div className="mt-2 rounded-2xl border border-[#ffcf90] bg-white p-5 text-right">
               <p className="text-xl font-bold text-[#213547]">Total: Rs. {totalAmount}</p>
+              <Link
+                to="/checkout"
+                className="mt-4 inline-block rounded-lg bg-[#ff8a00] px-4 py-2.5 font-semibold text-white transition hover:bg-[#f17f00]"
+              >
+                Proceed to Checkout
+              </Link>
             </div>
           </div>
         )}
@@ -82,3 +88,4 @@ function Cart({ cartItems = [], onIncreaseItem, onDecreaseItem, onDeleteItem }) 
 }
 
 export default Cart;
+

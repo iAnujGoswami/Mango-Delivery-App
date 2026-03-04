@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { INTRO_DATA } from "../data";
+import products, { INTRO_DATA } from "../data";
 
 function MangoIntroSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -23,6 +23,7 @@ function MangoIntroSection() {
   }
 
   const currentItem = INTRO_DATA[currentIndex];
+  const previewProducts = products.slice(0, 6);
 
   return (
     <section className="relative mx-auto mt-8 max-w-7xl px-4 sm:px-6">
@@ -102,6 +103,53 @@ function MangoIntroSection() {
               />
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="mt-7 rounded-3xl border border-[#ffd8a8] bg-[#fff7e8] p-5 shadow-sm md:p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-2xl text-[#8a4700] tenor-sans">Popular Picks</h2>
+          <button
+            type="button"
+            onClick={() => navigate("/products")}
+            className="rounded-full border border-[#ffb25b] bg-white px-4 py-2 text-sm font-semibold text-[#8a4700] transition hover:bg-[#ffe7bf]"
+          >
+            View All
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {previewProducts.map((item) => (
+            <article
+              key={item.id}
+              className="rounded-2xl border border-[#ffd8a8] bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <img
+                src={item.image}
+                alt={item.name}
+                className="h-24 w-full rounded-xl bg-[#fffaf0] object-contain"
+              />
+              <h3 className="mt-2 truncate text-sm font-semibold text-[#8a4700]">{item.name}</h3>
+              <p className="text-sm font-bold text-[#4b3b2b]">Rs. {item.price}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-3xl border border-[#ffd8a8] bg-gradient-to-r from-[#fff7e8] to-[#ffeacc] p-5 shadow-sm md:p-6">
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#ad5a00]">
+          10-Minute Delivery Cities
+        </p>
+        <h2 className="mt-1 text-2xl text-[#8a4700] tenor-sans">Where We Deliver Fast</h2>
+        <div className="mt-4 flex flex-wrap gap-3">
+          {["Chatrapati Sambhajinagar", "Pune", "Mumbai", "Bangalore"].map((city) => (
+            <span
+              key={city}
+              className="rounded-full border border-[#ffcf90] bg-white px-4 py-2 text-sm font-semibold text-[#7a4306]"
+            >
+              {city}
+            </span>
+          ))}
         </div>
       </div>
     </section>

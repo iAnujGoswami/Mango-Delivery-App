@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Cart from "./pages/Cart";
 import AboutUs from "./pages/AboutUs";
+import Checkout from "./pages/Checkout";
+import Profile from "./pages/Profile";
 function App() {
   const [cartItems, setCartItems] = useState(() => {
     const saved = localStorage.getItem("mango_cart_items");
@@ -66,6 +68,8 @@ function App() {
             />
           }
         />
+        <Route path="/checkout" element={<Checkout cartItems={cartItems} />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route
@@ -85,3 +89,4 @@ function App() {
 }
 
 export default App
+
