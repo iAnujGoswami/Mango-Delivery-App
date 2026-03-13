@@ -11,6 +11,7 @@ import Cart from "./pages/Cart";
 import AboutUs from "./pages/AboutUs";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
+import ProductDetails from "./pages/ProductDetails";
 function App() {
   const [cartItems, setCartItems] = useState(() => {
     const saved = localStorage.getItem("mango_cart_items");
@@ -61,10 +62,20 @@ function App() {
           path="/products"
           element={
             <Products
-              cartItems={cartItems}
+              cartItems={cartItems} // useState, line 16
               onAddToCart={handleAddToCart}
               onIncreaseItem={handleIncreaseCartItem}
               onDecreaseItem={handleDecreaseCartItem}
+            />
+          }
+        />
+        <Route
+          path="/products/:productId"
+          element={
+            <ProductDetails
+              cartItems={cartItems}
+              onAddToCart={handleAddToCart}
+              onIncreaseItem={handleIncreaseCartItem}
             />
           }
         />
