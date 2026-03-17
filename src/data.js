@@ -1,9 +1,7 @@
-
-import mango from "./assets/ChatGPTMango.jpg";
-import coconut from "./assets/ChatGPT Coconut.jpg";
-import guava from "./assets/ChatGPTGuava.jpg";
-import chiku from "./assets/ChatGPT Chiku.jpg";
-
+const mango = "/ChatGPTMango.jpg";
+const coconut = "/ChatGPT Coconut.jpg";
+const guava = "/ChatGPTGuava.jpg";
+const chiku = "/ChatGPT Chiku.jpg";
 
 export const INTRO_DATA=[
     {

@@ -12,12 +12,12 @@ import AboutUs from "./pages/AboutUs";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import ProductDetails from "./pages/ProductDetails";
+
 function App() {
   const [cartItems, setCartItems] = useState(() => {
     const saved = localStorage.getItem("mango_cart_items");
     return saved ? JSON.parse(saved) : [];
   });
-
   useEffect(() => {
     localStorage.setItem("mango_cart_items", JSON.stringify(cartItems));
   }, [cartItems]);
@@ -100,4 +100,3 @@ function App() {
 }
 
 export default App
-
