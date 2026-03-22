@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import products, { INTRO_DATA } from "../data";
+import { INTRO_DATA } from "../data";
+import { FALLBACK_PRODUCT_IMAGE } from "../lib/products";
 
 function MangoIntroSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -23,7 +24,12 @@ function MangoIntroSection() {
   }
 
   const currentItem = INTRO_DATA[currentIndex];
-  const previewProducts = products.slice(0, 6);
+  const previewProducts = INTRO_DATA.map((item) => ({
+    id: item.title,
+    image: item.image || FALLBACK_PRODUCT_IMAGE,
+    name: item.title,
+    price: "Fresh Picks",
+  }));
 
   return (
     <section className="relative mx-auto mt-8 max-w-7xl px-4 sm:px-6">
@@ -35,7 +41,7 @@ function MangoIntroSection() {
           type="button"
           aria-label="Previous"
           onClick={handlePrev}
-          className="absolute left-3 top-1/2 z-10 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-orange-300 bg-white/90 text-orange-600 shadow-sm transition hover:bg-orange-50 hover:border-orange-400 active:scale-95 md:left-5 md:h-11 md:w-11"
+          className="absolute left-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-orange-300 bg-white/90 text-orange-600 shadow-sm transition hover:border-orange-400 hover:bg-orange-50 active:scale-95 md:left-5 md:h-11 md:w-11"
         >
           <span className="text-xl leading-none">&lsaquo;</span>
         </button>
@@ -44,13 +50,13 @@ function MangoIntroSection() {
           type="button"
           aria-label="Next"
           onClick={handleNext}
-          className="absolute right-3 top-1/2 z-10 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-orange-300 bg-white/90 text-orange-600 shadow-sm transition hover:bg-orange-50 hover:border-orange-400 active:scale-95 md:right-5 md:h-11 md:w-11"
+          className="absolute right-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-orange-300 bg-white/90 text-orange-600 shadow-sm transition hover:border-orange-400 hover:bg-orange-50 active:scale-95 md:right-5 md:h-11 md:w-11"
         >
           <span className="text-xl leading-none">&rsaquo;</span>
         </button>
 
         <div className="relative grid items-center gap-8 md:grid-cols-[1.08fr_0.92fr]">
-          <div key={currentIndex} className="space-y-5 pl-8 pr-8 animate-[fadeIn_.35s_ease] md:pl-10">
+          <div key={currentIndex} className="animate-[fadeIn_.35s_ease] space-y-5 pl-8 pr-8 md:pl-10">
             <p className="inline-flex rounded-full border border-[#ffcc8c] bg-white/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#ad5a00]">
               Farm Fresh Daily
             </p>
@@ -99,7 +105,7 @@ function MangoIntroSection() {
                 key={currentIndex}
                 src={currentItem.image}
                 alt={currentItem.title}
-                className="h-[280px] w-[280px] rounded-[20px] object-cover shadow-xl ring-4 ring-orange-100 animate-[zoomIn_.35s_ease] sm:h-[330px] sm:w-[330px]"
+                className="h-[280px] w-[280px] animate-[zoomIn_.35s_ease] rounded-[20px] object-cover shadow-xl ring-4 ring-orange-100 sm:h-[330px] sm:w-[330px]"
               />
             </div>
           </div>
@@ -118,7 +124,7 @@ function MangoIntroSection() {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {previewProducts.map((item) => (
             <article
               key={item.id}
@@ -130,7 +136,7 @@ function MangoIntroSection() {
                 className="h-24 w-full rounded-xl bg-[#fffaf0] object-contain"
               />
               <h3 className="mt-2 truncate text-sm font-semibold text-[#8a4700]">{item.name}</h3>
-              <p className="text-sm font-bold text-[#4b3b2b]">Rs. {item.price}</p>
+              <p className="text-sm font-bold text-[#4b3b2b]">{item.price}</p>
             </article>
           ))}
         </div>
