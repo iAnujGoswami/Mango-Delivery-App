@@ -102,6 +102,13 @@ function ProductDetails({ cartItems = [], onAddToCart, onIncreaseItem }) {
     }
   }
 
+  function handleImageError(event) {
+    if (event.currentTarget.dataset.fallbackApplied === "true") return;
+
+    event.currentTarget.dataset.fallbackApplied = "true";
+    event.currentTarget.src = product.fallbackImage;
+  }
+
   return (
     <div className="min-h-screen bg-[#fff1cc] text-[#213547]">
       <Navbar />
@@ -115,6 +122,7 @@ function ProductDetails({ cartItems = [], onAddToCart, onIncreaseItem }) {
             <img
               src={product.image}
               alt={product.name}
+              onError={handleImageError}
               className="h-[420px] w-full rounded-xl object-contain"
             />
           </div>

@@ -21,3 +21,13 @@ export async function fetchProduct(productId) {
   const product = await fetchJson(`/api/products/${productId}/`);
   return normalizeProduct(product);
 }
+
+export async function createOrder(orderPayload) {
+  return fetchJson("/api/orders/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(orderPayload),
+  });
+}

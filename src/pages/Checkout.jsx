@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar";
+import { createOrder } from "../lib/api";
 
-function Checkout({ cartItems = [] }) {
+function Checkout({ cartItems = [], onOrderPlaced }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: "",
+    email: "",
     phone: "",
     addressLine1: "",
     addressLine2: "",
@@ -14,6 +16,8 @@ function Checkout({ cartItems = [] }) {
     pincode: "",
     paymentMethod: "cod",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -22,28 +26,36 @@ function Checkout({ cartItems = [] }) {
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const orderPayload = {
-      address: {
-        fullName: form.fullName,
-        phone: form.phone,
-        addressLine1: form.addressLine1,
-        addressLine2: form.addressLine2,
-        city: form.city,
-        state: form.state,
-        pincode: form.pincode,
-      },
-      paymentMethod: form.paymentMethod,
-      items: cartItems,
-      totalAmount,
+      customer_name: form.fullName,
+      customer_email: form.email,
+      phone: form.phone,
+      address: [form.addressLine1, form.addressLine2].filter(Boolean).join(", "),
+      city: form.city,
+      state: form.state,
+      pincode: form.pincode,
+      items: cartItems.map((item) => ({
+        product_id: item.id,
+        quantity: item.quantity,
+      })),
     };
 
-    // Placeholder submit action until backend order API is connected.
-    console.log("Place order payload:", orderPayload);
-    alert("Order placed successfully.");
-    navigate("/");
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    try {
+      const response = await createOrder(orderPayload);
+      onOrderPlaced?.();
+      alert(`Order placed successfully. Order ID: ${response.order_id}`);
+      navigate("/");
+    } catch (error) {
+      setSubmitError(error.message || "Unable to place order right now.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (cartItems.length === 0) {
@@ -96,6 +108,22 @@ function Checkout({ cartItems = [] }) {
                   value={form.fullName}
                   onChange={handleChange}
                   placeholder="Enter full name"
+                  className="mt-1 w-full rounded-xl border border-[#ffcf90] bg-white px-3 py-2.5 text-[#2f2517] placeholder:text-[#9c7a54] outline-none transition focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-semibold text-[#5e3f1f]">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="Enter email address"
                   className="mt-1 w-full rounded-xl border border-[#ffcf90] bg-white px-3 py-2.5 text-[#2f2517] placeholder:text-[#9c7a54] outline-none transition focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
                 />
               </div>
@@ -255,10 +283,16 @@ function Checkout({ cartItems = [] }) {
 
             <button
               type="submit"
+              disabled={isSubmitting}
               className="mt-6 w-full rounded-xl bg-[#ff8a00] px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-[#f17f00] active:scale-[0.99]"
             >
-              Place Order
+              {isSubmitting ? "Placing Order..." : `Place Order • Rs. ${totalAmount}`}
             </button>
+            {submitError ? (
+              <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {submitError}
+              </p>
+            ) : null}
           </form>
 
           <aside className="h-fit rounded-3xl border border-[#ffd8a8] bg-[#fffdf8] p-5 shadow-[0_10px_30px_rgba(120,70,11,0.08)]">

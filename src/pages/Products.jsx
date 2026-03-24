@@ -7,6 +7,13 @@ const INITIAL_COUNT = 12;
 const PAGE_SIZE = 8;
 
 function ProductCard({ item }) {
+  function handleImageError(event) {
+    if (event.currentTarget.dataset.fallbackApplied === "true") return;
+
+    event.currentTarget.dataset.fallbackApplied = "true";
+    event.currentTarget.src = item.fallbackImage;
+  }
+
   return (
     <Link
       to={`/products/${item.id}`}
@@ -15,6 +22,7 @@ function ProductCard({ item }) {
       <img
         src={item.image}
         alt={item.name}
+        onError={handleImageError}
         className="h-96 w-full rounded-xl bg-[#fffaf0] object-contain transition-transform duration-300 group-hover:scale-[1.03]"
       />
       <h3 className="mt-5 text-2xl font-semibold text-[#ff6f00]">{item.name}</h3>

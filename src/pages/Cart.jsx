@@ -2,12 +2,20 @@ import { Link } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 
 function CartItemCard({ item, onIncreaseItem, onDecreaseItem, onDeleteItem }) {
+  function handleImageError(event) {
+    if (event.currentTarget.dataset.fallbackApplied === "true") return;
+
+    event.currentTarget.dataset.fallbackApplied = "true";
+    event.currentTarget.src = item.fallbackImage || "/Logo.jpg";
+  }
+
   return (
     <article className="rounded-3xl border border-[#ffd8a8] bg-[#fff9f0] p-4 shadow-[0_10px_28px_rgba(120,70,11,0.08)] sm:p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <img
           src={item.image}
           alt={item.name}
+          onError={handleImageError}
           className="h-24 w-24 rounded-2xl border border-[#ffe1b7] bg-[#fffaf0] object-contain"
         />
         <div className="flex-1 min-w-0">
@@ -129,4 +137,3 @@ function Cart({ cartItems = [], onIncreaseItem, onDecreaseItem, onDeleteItem }) 
 }
 
 export default Cart;
-

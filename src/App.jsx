@@ -53,6 +53,10 @@ function App() {
     setCartItems((prev) => prev.filter((item) => item.id !== productId));
   }
 
+  function handleClearCart() {
+    setCartItems([]);
+  }
+
   return (
     <BrowserRouter>
       <Routes>
@@ -79,7 +83,7 @@ function App() {
             />
           }
         />
-        <Route path="/checkout" element={<Checkout cartItems={cartItems} />} />
+        <Route path="/checkout" element={<Checkout cartItems={cartItems} onOrderPlaced={handleClearCart} />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
