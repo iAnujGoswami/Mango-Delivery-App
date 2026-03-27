@@ -1,7 +1,7 @@
 
 import './App.css'
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Products from './pages/Products';
@@ -14,13 +14,7 @@ import Profile from "./pages/Profile";
 import ProductDetails from "./pages/ProductDetails";
 
 function App() {
-  const [cartItems, setCartItems] = useState(() => {
-    const saved = localStorage.getItem("mango_cart_items");
-    return saved ? JSON.parse(saved) : [];
-  });
-  useEffect(() => {
-    localStorage.setItem("mango_cart_items", JSON.stringify(cartItems));
-  }, [cartItems]);
+  const [cartItems, setCartItems] = useState([]);
 
   function handleAddToCart(product) {
     setCartItems((prev) => {
