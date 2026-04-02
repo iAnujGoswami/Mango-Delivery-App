@@ -32,3 +32,12 @@ dist-ssr
 backend/.venv/
 backend/.env
 backend/data.json
+backend/db.sqlite3
+
+# Firebase local files
+.firebase/
+.firebaserc
+
+# Python cache files
+__pycache__/
+*.py[cod]
