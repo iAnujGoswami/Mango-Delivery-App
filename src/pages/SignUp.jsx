@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 
 export default function SignUp() {
@@ -23,17 +24,20 @@ export default function SignUp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fff7e8]">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#fffdf7_0%,#fff4de_36%,#ffe4b2_100%)]">
       <Navbar />
-      <div className="flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md rounded-2xl border border-[#ffd6a0] bg-white p-6 shadow-md">
-          <h1 className="text-3xl font-bold text-[#ff6f00]">Create Account</h1>
-          <p className="mt-2 text-[#6a4a2a]">Signup to start ordering fresh fruits.</p>
+      <main className="mx-auto flex max-w-7xl items-center justify-center px-4 py-8 sm:px-6 lg:min-h-[calc(100vh-88px)] lg:py-10">
+        <section className="w-full max-w-3xl rounded-[36px] border border-[#ffd7a8] bg-[linear-gradient(180deg,#fffefb_0%,#fff6e8_100%)] p-6 shadow-[0_24px_70px_rgba(128,77,10,0.14)] sm:p-8 lg:p-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#ab6418]">Create account</p>
+          <h1 className="mt-3 text-3xl text-[#8a4700] tenor-sans sm:text-4xl">Join Mango Delivery</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-[#6a4a2a] sm:text-base">
+            Create your account to order faster, save delivery details, and manage your fruit deliveries in one place.
+          </p>
 
-          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          <form className="mt-8 grid gap-5 sm:grid-cols-2" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-[#5e3f1f]">
-                Name
+              <label htmlFor="name" className="block text-sm font-semibold uppercase tracking-[0.08em] text-[#5e3f1f]">
+                Username
               </label>
               <input
                 id="name"
@@ -43,12 +47,12 @@ export default function SignUp() {
                 value={form.name}
                 onChange={handleChange}
                 placeholder="Enter username"
-                className="mt-1 w-full rounded-lg border border-[#ffcf90] bg-white px-3 py-2 text-[#213547] caret-[#213547] placeholder:text-[#8b6b47] outline-none focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
+                className="mt-2 w-full rounded-2xl border border-[#ffcf90] bg-white px-4 py-3 text-[#213547] caret-[#213547] placeholder:text-[#9a7a57] outline-none transition focus:border-[#ff9f3a] focus:ring-4 focus:ring-[#ffe0b8]"
               />
             </div>
 
             <div>
-              <label htmlFor="fullName" className="block text-sm font-semibold text-[#5e3f1f]">
+              <label htmlFor="fullName" className="block text-sm font-semibold uppercase tracking-[0.08em] text-[#5e3f1f]">
                 Full Name
               </label>
               <input
@@ -59,12 +63,12 @@ export default function SignUp() {
                 value={form.fullName}
                 onChange={handleChange}
                 placeholder="Enter full name"
-                className="mt-1 w-full rounded-lg border border-[#ffcf90] bg-white px-3 py-2 text-[#213547] caret-[#213547] placeholder:text-[#8b6b47] outline-none focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
+                className="mt-2 w-full rounded-2xl border border-[#ffcf90] bg-white px-4 py-3 text-[#213547] caret-[#213547] placeholder:text-[#9a7a57] outline-none transition focus:border-[#ff9f3a] focus:ring-4 focus:ring-[#ffe0b8]"
               />
             </div>
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-[#5e3f1f]">
+            <div className="sm:col-span-2">
+              <label htmlFor="email" className="block text-sm font-semibold uppercase tracking-[0.08em] text-[#5e3f1f]">
                 Email Address
               </label>
               <input
@@ -75,12 +79,12 @@ export default function SignUp() {
                 value={form.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
-                className="mt-1 w-full rounded-lg border border-[#ffcf90] bg-white px-3 py-2 text-[#213547] caret-[#213547] placeholder:text-[#8b6b47] outline-none focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
+                className="mt-2 w-full rounded-2xl border border-[#ffcf90] bg-white px-4 py-3 text-[#213547] caret-[#213547] placeholder:text-[#9a7a57] outline-none transition focus:border-[#ff9f3a] focus:ring-4 focus:ring-[#ffe0b8]"
               />
             </div>
 
             <div>
-              <label htmlFor="dob" className="block text-sm font-semibold text-[#5e3f1f]">
+              <label htmlFor="dob" className="block text-sm font-semibold uppercase tracking-[0.08em] text-[#5e3f1f]">
                 Date of Birth
               </label>
               <input
@@ -90,12 +94,12 @@ export default function SignUp() {
                 required
                 value={form.dob}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-lg border border-[#ffcf90] bg-white px-3 py-2 text-[#213547] caret-[#213547] outline-none focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
+                className="mt-2 w-full rounded-2xl border border-[#ffcf90] bg-white px-4 py-3 text-[#213547] caret-[#213547] outline-none transition focus:border-[#ff9f3a] focus:ring-4 focus:ring-[#ffe0b8]"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-[#5e3f1f]">
+              <label htmlFor="password" className="block text-sm font-semibold uppercase tracking-[0.08em] text-[#5e3f1f]">
                 Password
               </label>
               <input
@@ -106,12 +110,12 @@ export default function SignUp() {
                 value={form.password}
                 onChange={handleChange}
                 placeholder="Enter password"
-                className="mt-1 w-full rounded-lg border border-[#ffcf90] bg-white px-3 py-2 text-[#213547] caret-[#213547] placeholder:text-[#8b6b47] outline-none focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
+                className="mt-2 w-full rounded-2xl border border-[#ffcf90] bg-white px-4 py-3 text-[#213547] caret-[#213547] placeholder:text-[#9a7a57] outline-none transition focus:border-[#ff9f3a] focus:ring-4 focus:ring-[#ffe0b8]"
               />
             </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-[#5e3f1f]">
+            <div className="sm:col-span-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold uppercase tracking-[0.08em] text-[#5e3f1f]">
                 Confirm Password
               </label>
               <input
@@ -122,19 +126,28 @@ export default function SignUp() {
                 value={form.confirmPassword}
                 onChange={handleChange}
                 placeholder="Confirm password"
-                className="mt-1 w-full rounded-lg border border-[#ffcf90] bg-white px-3 py-2 text-[#213547] caret-[#213547] placeholder:text-[#8b6b47] outline-none focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
+                className="mt-2 w-full rounded-2xl border border-[#ffcf90] bg-white px-4 py-3 text-[#213547] caret-[#213547] placeholder:text-[#9a7a57] outline-none transition focus:border-[#ff9f3a] focus:ring-4 focus:ring-[#ffe0b8]"
               />
             </div>
 
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-[#ff8a00] px-4 py-2.5 font-semibold text-white transition hover:bg-[#f17f00]"
-            >
-              Submit
-            </button>
+            <div className="sm:col-span-2">
+              <button
+                type="submit"
+                className="w-full rounded-2xl bg-[#ff8a00] px-4 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-white shadow-[0_16px_34px_rgba(255,138,0,0.25)] transition hover:bg-[#f17f00]"
+              >
+                Create Account
+              </button>
+            </div>
           </form>
-        </div>
-      </div>
+
+          <div className="mt-6 rounded-2xl border border-[#ffe0b8] bg-[#fff8ee] px-4 py-4 text-sm text-[#6a4a2a]">
+            Already have an account?{" "}
+            <Link to="/login" className="font-semibold text-[#ff6f00] hover:underline">
+              Sign in
+            </Link>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
