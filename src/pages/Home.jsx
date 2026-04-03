@@ -1,12 +1,11 @@
 import Navbar from "../Components/Navbar";
 import MangoIntroSection from "../Components/MangoIntroSection";
-import ProductPreview from "../Components/ProductPreview";
+
 function Home() {
   return (
-    <div className="">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#fffdf6_0%,#fff5df_34%,#ffe8bf_72%,#ffdba1_100%)]">
       <Navbar />
       <MangoIntroSection />
-      <ProductPreview/>
     </div>
   );
 }
