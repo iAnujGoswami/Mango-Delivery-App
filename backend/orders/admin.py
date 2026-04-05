@@ -79,6 +79,7 @@ class AddressAdmin(admin.ModelAdmin):
         "profile_email",
         "label",
         "receiver_name",
+        "address_preview",
         "phone",
         "city",
         "state",
@@ -131,3 +132,9 @@ class AddressAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    @admin.display(description="Address")
+    def address_preview(self, obj):
+        if obj.line2:
+            return f"{obj.line1}, {obj.line2}"
+        return obj.line1
