@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Order, OrderItem
+from .models import Address, Order, OrderItem
 
 
 class OrderItemInline(admin.TabularInline):
@@ -70,3 +70,64 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_filter = ("product",)
     search_fields = ("order__id", "product__name")
     readonly_fields = ("order", "product", "quantity", "price")
+
+
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "profile_email",
+        "label",
+        "receiver_name",
+        "phone",
+        "city",
+        "state",
+        "pincode",
+        "is_default",
+        "updated_at",
+    )
+    list_filter = ("label", "is_default", "state", "city", "updated_at")
+    search_fields = ("profile_email", "receiver_name", "phone", "pincode", "line1", "line2")
+    readonly_fields = ("created_at", "updated_at")
+    fieldsets = (
+        (
+            "Address Owner",
+            {
+                "fields": (
+                    "profile_email",
+                    "label",
+                    "is_default",
+                )
+            },
+        ),
+        (
+            "Receiver Details",
+            {
+                "fields": (
+                    "receiver_name",
+                    "phone",
+                )
+            },
+        ),
+        (
+            "Address Details",
+            {
+                "fields": (
+                    "line1",
+                    "line2",
+                    "city",
+                    "state",
+                    "pincode",
+                )
+            },
+        ),
+        (
+            "Timestamps",
+            {
+                "fields": (
+                    "created_at",
+                    "updated_at",
+                )
+            },
+        ),
+    )

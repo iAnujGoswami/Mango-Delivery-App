@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from products.models import Product
 
-from .models import Order, OrderItem
+from .models import Address, Order, OrderItem
 
 
 class OrderItemInputSerializer(serializers.Serializer):
@@ -39,6 +39,58 @@ class OrderSerializer(serializers.ModelSerializer):
             "created_at",
             "items",
         )
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = (
+            "id",
+            "profile_email",
+            "label",
+            "receiver_name",
+            "phone",
+            "line1",
+            "line2",
+            "city",
+            "state",
+            "pincode",
+            "is_default",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = ("id", "created_at", "updated_at")
+
+    def validate_profile_email(self, value):
+        normalized = value.strip().lower()
+        if not normalized:
+            raise serializers.ValidationError("Profile email is required.")
+        return normalized
+
+    def _normalize_default_state(self, address):
+        if address.is_default:
+            Address.objects.filter(profile_email=address.profile_email).exclude(pk=address.pk).update(is_default=False)
+            return
+
+        has_other_default = Address.objects.filter(
+            profile_email=address.profile_email,
+            is_default=True,
+        ).exclude(pk=address.pk).exists()
+        if not has_other_default:
+            address.is_default = True
+            address.save(update_fields=["is_default", "updated_at"])
+
+    def create(self, validated_data):
+        address = Address.objects.create(**validated_data)
+        self._normalize_default_state(address)
+        return address
+
+    def update(self, instance, validated_data):
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+        self._normalize_default_state(instance)
+        return instance
 
 
 class OrderCreateSerializer(serializers.Serializer):

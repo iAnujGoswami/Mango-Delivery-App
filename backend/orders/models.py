@@ -32,6 +32,27 @@ class Order(models.Model):
         return f"Order #{self.id} - {self.customer_name}"
 
 
+class Address(models.Model):
+    profile_email = models.EmailField()
+    label = models.CharField(max_length=50, default="Home")
+    receiver_name = models.CharField(max_length=200)
+    phone = models.CharField(max_length=20)
+    line1 = models.CharField(max_length=255)
+    line2 = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    pincode = models.CharField(max_length=20)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-is_default", "-updated_at"]
+
+    def __str__(self):
+        return f"{self.label} - {self.receiver_name} ({self.profile_email})"
+
+
 class OrderItem(models.Model):
     order = models.ForeignKey(
         Order,

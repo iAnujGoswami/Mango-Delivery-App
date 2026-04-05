@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "../Components/Navbar";
+import { createAddress, deleteAddress, fetchAddresses, updateAddress } from "../lib/api";
 
 const PROFILE_STORAGE_KEY = "mango_user_profile";
-const ADDRESS_STORAGE_KEY = "mango_user_addresses";
 
 const EMPTY_PROFILE = {
   fullName: "",
@@ -32,12 +32,50 @@ function readLocalStorage(key, fallback) {
   }
 }
 
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function mapAddressFromApi(address) {
+  return {
+    id: address.id,
+    label: address.label || "Home",
+    receiverName: address.receiver_name || "",
+    phone: address.phone || "",
+    line1: address.line1 || "",
+    line2: address.line2 || "",
+    city: address.city || "",
+    state: address.state || "",
+    pincode: address.pincode || "",
+    isDefault: !!address.is_default,
+  };
+}
+
+function buildAddressPayload(addressForm, profileEmail) {
+  return {
+    profile_email: profileEmail,
+    label: addressForm.label,
+    receiver_name: addressForm.receiverName,
+    phone: addressForm.phone,
+    line1: addressForm.line1,
+    line2: addressForm.line2,
+    city: addressForm.city,
+    state: addressForm.state,
+    pincode: addressForm.pincode,
+    is_default: addressForm.isDefault,
+  };
+}
+
 function Profile() {
-  const [profile, setProfile] = useState(() => readLocalStorage(PROFILE_STORAGE_KEY, EMPTY_PROFILE));
-  const [addresses, setAddresses] = useState(() => readLocalStorage(ADDRESS_STORAGE_KEY, []));
+  const initialProfile = readLocalStorage(PROFILE_STORAGE_KEY, EMPTY_PROFILE);
+  const [profile, setProfile] = useState(initialProfile);
+  const [activeEmail, setActiveEmail] = useState(() => normalizeEmail(initialProfile.email));
+  const [addresses, setAddresses] = useState([]);
   const [addressForm, setAddressForm] = useState(EMPTY_ADDRESS);
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [notice, setNotice] = useState("");
+  const [isAddressLoading, setIsAddressLoading] = useState(false);
+  const [isAddressSubmitting, setIsAddressSubmitting] = useState(false);
 
   const isEditing = useMemo(() => editingAddressId !== null, [editingAddressId]);
 
@@ -46,6 +84,27 @@ function Profile() {
     window.setTimeout(() => setNotice(""), 2200);
   }
 
+  async function loadAddresses(profileEmail) {
+    if (!profileEmail) {
+      setAddresses([]);
+      return;
+    }
+
+    try {
+      setIsAddressLoading(true);
+      const response = await fetchAddresses(profileEmail);
+      setAddresses(response.map(mapAddressFromApi));
+    } catch {
+      showNotice("Unable to load saved addresses right now.");
+    } finally {
+      setIsAddressLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadAddresses(activeEmail);
+  }, [activeEmail]);
+
   function handleProfileChange(e) {
     const { name, value } = e.target;
     setProfile((prev) => ({ ...prev, [name]: value }));
@@ -53,7 +112,11 @@ function Profile() {
 
   function handleSaveProfile(e) {
     e.preventDefault();
-    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
+    const normalizedEmail = normalizeEmail(profile.email);
+    const nextProfile = { ...profile, email: normalizedEmail };
+    setProfile(nextProfile);
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(nextProfile));
+    setActiveEmail(normalizedEmail);
     showNotice("Profile saved.");
   }
 
@@ -70,42 +133,48 @@ function Profile() {
     setEditingAddressId(null);
   }
 
-  function persistAddresses(nextAddresses) {
-    setAddresses(nextAddresses);
-    localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(nextAddresses));
-  }
-
-  function normalizeDefaultAddress(nextAddresses, selectedId, selectedIsDefault) {
-    if (!selectedIsDefault) {
-      return nextAddresses;
+  function getProfileEmailForAddressBook() {
+    const normalizedEmail = normalizeEmail(profile.email);
+    if (!normalizedEmail) {
+      showNotice("Save your profile email before managing addresses.");
+      return "";
     }
 
-    return nextAddresses.map((item) => ({
-      ...item,
-      isDefault: item.id === selectedId,
-    }));
+    if (normalizedEmail !== activeEmail) {
+      showNotice("Save your profile first so addresses are linked to the correct email.");
+      return "";
+    }
+
+    return normalizedEmail;
   }
 
-  function handleSaveAddress(e) {
+  async function handleSaveAddress(e) {
     e.preventDefault();
 
-    if (isEditing) {
-      const updated = addresses.map((item) =>
-        item.id === editingAddressId ? { ...item, ...addressForm, id: item.id } : item
-      );
-      const normalized = normalizeDefaultAddress(updated, editingAddressId, addressForm.isDefault);
-      persistAddresses(normalized);
-      resetAddressForm();
-      showNotice("Address updated.");
+    const profileEmail = getProfileEmailForAddressBook();
+    if (!profileEmail) {
       return;
     }
 
-    const newId = `addr_${Date.now()}`;
-    const next = [...addresses, { ...addressForm, id: newId }];
-    const normalized = normalizeDefaultAddress(next, newId, addressForm.isDefault);
-    persistAddresses(normalized);
-    resetAddressForm();
-    showNotice("Address saved.");
+    try {
+      setIsAddressSubmitting(true);
+      const payload = buildAddressPayload(addressForm, profileEmail);
+
+      if (isEditing) {
+        await updateAddress(editingAddressId, profileEmail, payload);
+        showNotice("Address updated.");
+      } else {
+        await createAddress(payload);
+        showNotice("Address saved.");
+      }
+
+      resetAddressForm();
+      await loadAddresses(profileEmail);
+    } catch {
+      showNotice("Unable to save address right now.");
+    } finally {
+      setIsAddressSubmitting(false);
+    }
   }
 
   function handleEditAddress(addressId) {
@@ -125,31 +194,45 @@ function Profile() {
     });
   }
 
-  function handleDeleteAddress(addressId) {
-    const next = addresses.filter((item) => item.id !== addressId);
-    const hadDefault = addresses.find((item) => item.id === addressId)?.isDefault;
-
-    if (hadDefault && next.length > 0) {
-      next[0].isDefault = true;
+  async function handleDeleteAddress(addressId) {
+    const profileEmail = getProfileEmailForAddressBook();
+    if (!profileEmail) {
+      return;
     }
 
-    persistAddresses(next);
-    if (editingAddressId === addressId) {
-      resetAddressForm();
+    try {
+      await deleteAddress(addressId, profileEmail);
+      if (editingAddressId === addressId) {
+        resetAddressForm();
+      }
+      await loadAddresses(profileEmail);
+      showNotice("Address deleted.");
+    } catch {
+      showNotice("Unable to delete address right now.");
     }
-    showNotice("Address deleted.");
   }
 
-  function handleSetDefault(addressId) {
-    const next = addresses.map((item) => ({
-      ...item,
-      isDefault: item.id === addressId,
-    }));
-    persistAddresses(next);
-    if (editingAddressId === addressId) {
-      setAddressForm((prev) => ({ ...prev, isDefault: true }));
+  async function handleSetDefault(addressId) {
+    const profileEmail = getProfileEmailForAddressBook();
+    const selected = addresses.find((item) => item.id === addressId);
+    if (!profileEmail || !selected) {
+      return;
     }
-    showNotice("Default address updated.");
+
+    try {
+      await updateAddress(
+        addressId,
+        profileEmail,
+        buildAddressPayload({ ...selected, isDefault: true }, profileEmail)
+      );
+      if (editingAddressId === addressId) {
+        setAddressForm((prev) => ({ ...prev, isDefault: true }));
+      }
+      await loadAddresses(profileEmail);
+      showNotice("Default address updated.");
+    } catch {
+      showNotice("Unable to update default address right now.");
+    }
   }
 
   return (
@@ -163,11 +246,11 @@ function Profile() {
           <p className="mt-2 text-sm text-[#6a4b2b] sm:text-base">
             Manage your contact details and delivery addresses for faster checkout.
           </p>
-          {notice && (
+          {notice ? (
             <div className="mt-4 rounded-xl border border-[#ffcf90] bg-[#fff7e8] px-4 py-2 text-sm font-semibold text-[#8a4700]">
               {notice}
             </div>
-          )}
+          ) : null}
         </section>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
@@ -374,11 +457,12 @@ function Profile() {
               <div className="flex flex-wrap gap-3">
                 <button
                   type="submit"
-                  className="rounded-xl bg-[#ff8a00] px-5 py-2.5 font-semibold text-white transition hover:bg-[#f17f00]"
+                  disabled={isAddressSubmitting}
+                  className="rounded-xl bg-[#ff8a00] px-5 py-2.5 font-semibold text-white transition hover:bg-[#f17f00] disabled:cursor-not-allowed disabled:bg-[#ffcc94]"
                 >
-                  {isEditing ? "Update Address" : "Save Address"}
+                  {isAddressSubmitting ? "Saving..." : isEditing ? "Update Address" : "Save Address"}
                 </button>
-                {isEditing && (
+                {isEditing ? (
                   <button
                     type="button"
                     onClick={resetAddressForm}
@@ -386,7 +470,7 @@ function Profile() {
                   >
                     Cancel Edit
                   </button>
-                )}
+                ) : null}
               </div>
             </form>
           </section>
@@ -394,7 +478,15 @@ function Profile() {
 
         <section className="mt-6 rounded-3xl border border-[#ffd8a8] bg-[#fff9f0] p-6 shadow-[0_10px_30px_rgba(120,70,11,0.08)]">
           <h2 className="text-2xl tenor-sans text-[#8a4700]">Saved Addresses</h2>
-          {addresses.length === 0 ? (
+          {!activeEmail ? (
+            <p className="mt-3 rounded-xl border border-[#ffcf90] bg-white px-4 py-3 text-sm text-[#7a5b35]">
+              Save your profile email to start storing addresses in your account.
+            </p>
+          ) : isAddressLoading ? (
+            <p className="mt-3 rounded-xl border border-[#ffcf90] bg-white px-4 py-3 text-sm text-[#7a5b35]">
+              Loading saved addresses...
+            </p>
+          ) : addresses.length === 0 ? (
             <p className="mt-3 rounded-xl border border-[#ffcf90] bg-white px-4 py-3 text-sm text-[#7a5b35]">
               No saved addresses yet. Add your first address above.
             </p>
@@ -410,14 +502,14 @@ function Profile() {
                       <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#a75700]">
                         {item.label}
                       </p>
-                      {item.isDefault && (
+                      {item.isDefault ? (
                         <span className="mt-1 inline-block rounded-full bg-[#fff1d6] px-2.5 py-1 text-xs font-semibold text-[#8a4700]">
                           Default
                         </span>
-                      )}
+                      ) : null}
                     </div>
                     <div className="flex gap-2">
-                      {!item.isDefault && (
+                      {!item.isDefault ? (
                         <button
                           type="button"
                           onClick={() => handleSetDefault(item.id)}
@@ -425,7 +517,7 @@ function Profile() {
                         >
                           Set Default
                         </button>
-                      )}
+                      ) : null}
                       <button
                         type="button"
                         onClick={() => handleEditAddress(item.id)}
