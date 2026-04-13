@@ -11,6 +11,7 @@ const EMPTY_PROFILE = {
 };
 
 const EMPTY_ADDRESS = {
+  profileEmail: "",
   label: "Home",
   receiverName: "",
   phone: "",
@@ -68,10 +69,13 @@ function buildAddressPayload(addressForm, profileEmail) {
 
 function Profile() {
   const initialProfile = readLocalStorage(PROFILE_STORAGE_KEY, EMPTY_PROFILE);
-  const [profile, setProfile] = useState(initialProfile);
-  const [activeEmail, setActiveEmail] = useState(() => normalizeEmail(initialProfile.email));
+  const initialEmail = normalizeEmail(initialProfile.email);
+  const [activeEmail, setActiveEmail] = useState(initialEmail);
   const [addresses, setAddresses] = useState([]);
-  const [addressForm, setAddressForm] = useState(EMPTY_ADDRESS);
+  const [addressForm, setAddressForm] = useState(() => ({
+    ...EMPTY_ADDRESS,
+    profileEmail: initialEmail,
+  }));
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [notice, setNotice] = useState("");
   const [isAddressLoading, setIsAddressLoading] = useState(false);
@@ -105,21 +109,6 @@ function Profile() {
     loadAddresses(activeEmail);
   }, [activeEmail]);
 
-  function handleProfileChange(e) {
-    const { name, value } = e.target;
-    setProfile((prev) => ({ ...prev, [name]: value }));
-  }
-
-  function handleSaveProfile(e) {
-    e.preventDefault();
-    const normalizedEmail = normalizeEmail(profile.email);
-    const nextProfile = { ...profile, email: normalizedEmail };
-    setProfile(nextProfile);
-    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(nextProfile));
-    setActiveEmail(normalizedEmail);
-    showNotice("Profile saved.");
-  }
-
   function handleAddressChange(e) {
     const { name, value, type, checked } = e.target;
     setAddressForm((prev) => ({
@@ -128,20 +117,18 @@ function Profile() {
     }));
   }
 
-  function resetAddressForm() {
-    setAddressForm(EMPTY_ADDRESS);
+  function resetAddressForm(nextEmail = activeEmail) {
+    setAddressForm({
+      ...EMPTY_ADDRESS,
+      profileEmail: nextEmail,
+    });
     setEditingAddressId(null);
   }
 
   function getProfileEmailForAddressBook() {
-    const normalizedEmail = normalizeEmail(profile.email);
+    const normalizedEmail = normalizeEmail(addressForm.profileEmail || activeEmail);
     if (!normalizedEmail) {
-      showNotice("Save your profile email before managing addresses.");
-      return "";
-    }
-
-    if (normalizedEmail !== activeEmail) {
-      showNotice("Save your profile first so addresses are linked to the correct email.");
+      showNotice("Enter your email before managing addresses.");
       return "";
     }
 
@@ -168,7 +155,9 @@ function Profile() {
         showNotice("Address saved.");
       }
 
-      resetAddressForm();
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify({ ...EMPTY_PROFILE, email: profileEmail }));
+      setActiveEmail(profileEmail);
+      resetAddressForm(profileEmail);
       await loadAddresses(profileEmail);
     } catch {
       showNotice("Unable to save address right now.");
@@ -182,6 +171,7 @@ function Profile() {
     if (!selected) return;
     setEditingAddressId(addressId);
     setAddressForm({
+      profileEmail: activeEmail,
       label: selected.label || "Home",
       receiverName: selected.receiverName || "",
       phone: selected.phone || "",
@@ -244,7 +234,7 @@ function Profile() {
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a75700]">My Account</p>
           <h1 className="mt-2 text-3xl tenor-sans text-[#8a4700] sm:text-4xl">Profile & Address Book</h1>
           <p className="mt-2 text-sm text-[#6a4b2b] sm:text-base">
-            Manage your contact details and delivery addresses for faster checkout.
+            Manage your delivery addresses for faster checkout.
           </p>
           {notice ? (
             <div className="mt-4 rounded-xl border border-[#ffcf90] bg-[#fff7e8] px-4 py-2 text-sm font-semibold text-[#8a4700]">
@@ -253,70 +243,25 @@ function Profile() {
           ) : null}
         </section>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
-          <section className="rounded-3xl border border-[#ffd8a8] bg-[#fff9f0] p-6 shadow-[0_10px_30px_rgba(120,70,11,0.08)]">
-            <h2 className="text-2xl tenor-sans text-[#8a4700]">Basic Profile</h2>
-            <form className="mt-4 space-y-4" onSubmit={handleSaveProfile}>
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-semibold text-[#5e3f1f]">
-                  Full Name
-                </label>
-                <input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  required
-                  value={profile.fullName}
-                  onChange={handleProfileChange}
-                  placeholder="Enter full name"
-                  className="mt-1 w-full rounded-xl border border-[#ffcf90] bg-white px-3 py-2.5 outline-none transition focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-[#5e3f1f]">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={profile.email}
-                  onChange={handleProfileChange}
-                  placeholder="Enter email"
-                  className="mt-1 w-full rounded-xl border border-[#ffcf90] bg-white px-3 py-2.5 outline-none transition focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-sm font-semibold text-[#5e3f1f]">
-                  Phone Number
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  required
-                  value={profile.phone}
-                  onChange={handleProfileChange}
-                  placeholder="Enter phone number"
-                  className="mt-1 w-full rounded-xl border border-[#ffcf90] bg-white px-3 py-2.5 outline-none transition focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="rounded-xl bg-[#ff8a00] px-5 py-2.5 font-semibold text-white transition hover:bg-[#f17f00]"
-              >
-                Save Profile
-              </button>
-            </form>
-          </section>
-
-          <section className="rounded-3xl border border-[#ffd8a8] bg-[#fff9f0] p-6 shadow-[0_10px_30px_rgba(120,70,11,0.08)]">
+        <section className="mt-6 rounded-3xl border border-[#ffd8a8] bg-[#fff9f0] p-6 shadow-[0_10px_30px_rgba(120,70,11,0.08)]">
             <h2 className="text-2xl tenor-sans text-[#8a4700]">{isEditing ? "Edit Address" : "Add Address"}</h2>
             <form className="mt-4 space-y-4" onSubmit={handleSaveAddress}>
+              <div>
+                <label htmlFor="profileEmail" className="block text-sm font-semibold text-[#5e3f1f]">
+                  Email Address
+                </label>
+                <input
+                  id="profileEmail"
+                  name="profileEmail"
+                  type="email"
+                  required
+                  value={addressForm.profileEmail}
+                  onChange={handleAddressChange}
+                  placeholder="Enter email for this address"
+                  className="mt-1 w-full rounded-xl border border-[#ffcf90] bg-white px-3 py-2.5 outline-none transition focus:border-[#ff9f3a] focus:ring-2 focus:ring-[#ffd4a2]"
+                />
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="label" className="block text-sm font-semibold text-[#5e3f1f]">
@@ -473,14 +418,13 @@ function Profile() {
                 ) : null}
               </div>
             </form>
-          </section>
-        </div>
+        </section>
 
         <section className="mt-6 rounded-3xl border border-[#ffd8a8] bg-[#fff9f0] p-6 shadow-[0_10px_30px_rgba(120,70,11,0.08)]">
           <h2 className="text-2xl tenor-sans text-[#8a4700]">Saved Addresses</h2>
           {!activeEmail ? (
             <p className="mt-3 rounded-xl border border-[#ffcf90] bg-white px-4 py-3 text-sm text-[#7a5b35]">
-              Save your profile email to start storing addresses in your account.
+              Enter your email in the address form to start storing addresses in your account.
             </p>
           ) : isAddressLoading ? (
             <p className="mt-3 rounded-xl border border-[#ffcf90] bg-white px-4 py-3 text-sm text-[#7a5b35]">
